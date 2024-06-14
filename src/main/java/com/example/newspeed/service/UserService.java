@@ -79,6 +79,7 @@ public class UserService {
            throw new UsernameNotFoundException("사용자를 찾을 수 없거나 비밀번호가 일치하지 않습니다.");
        }
     }
+
     @Transactional
     public void updateRefreshToken(String userId,String refreshToekn){
         User user = userRepository.findByUserId(userId).orElseThrow(()->new UsernameNotFoundException("존재하지 않는 유저입니다."));

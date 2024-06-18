@@ -80,9 +80,13 @@ class ProfileControllerTest {
 
     @BeforeEach
     public void setUp(){
+        mockUserDetails = new UserDetailsImpl(mockUserSetUp());
         mvc = MockMvcBuilders.webAppContextSetup(context)
                 .apply(springSecurity(new MockSpringSecurityFilter()))
                 .build();
+
+
+        mockPrincipal = new UsernamePasswordAuthenticationToken(mockUserDetails,"",mockUserDetails.getAuthorities());
     }
 
     public User mockUserSetUp(){
@@ -93,8 +97,7 @@ class ProfileControllerTest {
         String email = "ohs9902@naver.com";
         String intro = "dawdawda12121";
         User testUser = new User(userId,password,username,email,intro);
-        UserDetailsImpl testUserDetails = new UserDetailsImpl(testUser);
-        mockPrincipal = new UsernamePasswordAuthenticationToken(testUserDetails,"",testUserDetails.getAuthorities());
+
         return testUser;
     }
 
@@ -121,8 +124,17 @@ class ProfileControllerTest {
     @DisplayName("프로필 업데이트 테스트 ")
     public void testUpdateProfile() throws Exception {
         //given
+        User testUser = mockUserDetails.getUser();
         ProfileRequestDto requestDto = new ProfileRequestDto();
-        ProfileResponseDto responseDto = new ProfileResponseDto(mockUserSetUp());
+
+        requestDto.setUserId(testUser.getUserId());
+        requestDto.setPassword(testUser.getPassword());
+        requestDto.setEmail(testUser.getEmail());
+        requestDto.setId(0);
+        requestDto.setName("수정된 이름");
+        requestDto.setIntro("수정된 소개 ");
+
+        ProfileResponseDto responseDto = new ProfileResponseDto(testUser.getUserId(),"수정된 이름", testUser.getEmail(),"수정된 소개");
         when(profileService.update(any(UserDetailsImpl.class),any(ProfileRequestDto.class)))
                 .thenReturn(responseDto);
 
@@ -134,18 +146,18 @@ class ProfileControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.userId").value("xjr279612@"))
-                .andExpect(jsonPath("$.name").value("ddaw12"))
+                .andExpect(jsonPath("$.name").value("수정된 이름"))
                 .andExpect(jsonPath("$.email").value("ohs9902@naver.com"))
-                .andExpect(jsonPath("$.intro").value("dawdawda12121"));
+                .andExpect(jsonPath("$.intro").value("수정된 소개"));
     }
+
 
     @Test
     @DisplayName("비밀번호 변경 테스트")
     public void testPasswordUpdate() throws Exception {
         //given
         ProfileRequestDto requestDto = new ProfileRequestDto();
-        requestDto.setPassword("newPassword1234");
-
+        requestDto.setNewPassword("newPassword4321@");
         doNothing().when(profileService).updatePassword(any(UserDetailsImpl.class),any(ProfileRequestDto.class));
 
         //when - then

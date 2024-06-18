@@ -137,4 +137,18 @@ class CommentControllerTest {
         ).andExpect(status().isOk());
     }
 
+    @Test
+    @DisplayName("댓글 삭제 테스트")
+    public void testDeleteComment() throws Exception {
+        //given
+        Long id = 1L;
+
+        when(commentService.delete(eq(id),any(UserDetailsImpl.class))).thenReturn(id);
+        //when - then
+        mvc.perform(delete("/api/comment/{comment_id}",id)
+                .principal(mockPrincipal)
+                .contentType(MediaType.APPLICATION_JSON)
+        ).andExpect(status().isOk());
+    }
+
 }

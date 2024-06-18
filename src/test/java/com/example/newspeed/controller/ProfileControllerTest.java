@@ -3,9 +3,11 @@ package com.example.newspeed.controller;
 import com.example.newspeed.config.WebSecurityConfig;
 import com.example.newspeed.dto.ProfileRequestDto;
 import com.example.newspeed.dto.ProfileResponseDto;
+import com.example.newspeed.entity.Like;
 import com.example.newspeed.entity.User;
 import com.example.newspeed.filter.MockSpringSecurityFilter;
 import com.example.newspeed.security.UserDetailsImpl;
+import com.example.newspeed.service.LikeService;
 import com.example.newspeed.service.ProfileService;
 import com.example.newspeed.service.UserService;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -22,6 +24,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers;
@@ -39,6 +42,7 @@ import java.security.Principal;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
@@ -49,7 +53,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @ExtendWith(SpringExtension.class)
 @WebMvcTest(
-        controllers = ProfileController.class,
+        controllers = {ProfileController.class, LikeController.class},
         excludeFilters = {
                 @ComponentScan.Filter(
                         type = FilterType.ASSIGNABLE_TYPE,
@@ -68,6 +72,9 @@ class ProfileControllerTest {
     ObjectMapper objectMapper;
     @MockBean
     ProfileService profileService;
+
+    @MockBean
+    LikeService likeService;
 
     private UserDetailsImpl mockUserDetails;
 
@@ -149,5 +156,6 @@ class ProfileControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(MockMvcResultMatchers.content().string("비밀번호가 변경되었습니다."));
     }
+
 
 }
